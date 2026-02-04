@@ -9,8 +9,8 @@
 body {
   margin: 0;
   padding: 0;
-  background-color:linear-gradient(90deg,rgba(26, 0, 0, 1) 0%, rgba(255, 25, 64, 1) 50%, rgba(61, 0, 0, 1) 100%); /* Deep Black */
-  color: #fff;
-  font-family: 'Inter', sans-serif; /* Or any clean font */
+  background-color: #FFFFFF;
+  color: #000000;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
