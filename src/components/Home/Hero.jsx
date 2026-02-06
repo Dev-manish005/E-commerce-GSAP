@@ -1,51 +1,79 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import logo from "../../assets/Cartopia-logo.svg";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
   const containerRef = useRef(null);
+  const contentRef = useRef(null);
   const logoRef = useRef(null);
   const headingRef = useRef(null);
   const sloganRef = useRef(null);
   const buttonsRef = useRef(null);
+  const bgBlobRef = useRef(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      // 1. Container Scale/Fade
-      // Use fromTo to ensure we explicitly end at opacity 1
+      // --- Entrance Animations ---
       tl.fromTo(containerRef.current,
         { opacity: 0 },
         { opacity: 1, duration: 1.5 }
       )
-        // 2. Logo Slide Up & Fade
         .fromTo(logoRef.current,
           { y: 50, opacity: 0 },
           { y: 0, opacity: 1, duration: 1 },
           "-=1"
         )
-        // 3. Slogan Up
         .fromTo(sloganRef.current,
           { y: 20, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.8 },
           "-=0.6"
         )
-        // 4. Heading Up
         .fromTo(headingRef.current,
           { y: 40, opacity: 0 },
           { y: 0, opacity: 1, duration: 1 },
           "-=0.6"
         )
-        // 5. Buttons Stagger
         .fromTo(buttonsRef.current.children,
           { y: 20, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.8, stagger: 0.2 },
           "-=0.4"
         );
-    }, containerRef); // Scope to container
 
-    return () => ctx.revert(); // Cleanup
+      // --- Parallax Scroll Animations ---
+
+      // Background Blob Parallax (Moves slower than scroll)
+      gsap.to(bgBlobRef.current, {
+        y: "20%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+
+      // Content Parallax (Moves faster/fades out)
+      gsap.to(contentRef.current, {
+        y: "-15%",
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom 30%", // Fade out before completely scrolling past
+          scrub: true,
+        },
+      });
+
+    }, containerRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (
@@ -54,10 +82,13 @@ const Hero = () => {
       className="min-h-screen bg-white flex flex-col justify-center items-center text-center px-6 relative overflow-hidden"
     >
       {/* Background Gradient for Depth (Subtle Red Glow) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#E63946]/5 blur-[120px] rounded-full pointer-events-none" />
+      <div
+        ref={bgBlobRef}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#E63946]/5 blur-[120px] rounded-full pointer-events-none"
+      />
 
       {/* Content Wrapper */}
-      <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+      <div ref={contentRef} className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
 
         {/* LOGO & SLOGAN BLOCK */}
         <div className="flex flex-col items-center mb-8">
@@ -78,11 +109,23 @@ const Hero = () => {
 
         {/* CTA BUTTONS */}
         <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-5">
-          <button className="px-8 py-3.5 bg-[#E63946] text-white rounded-full font-medium text-lg hover:bg-red-700 hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_4px_20px_rgba(230,57,70,0.3)]">
+          <button
+            onClick={() => {
+              const element = document.getElementById('featured-products');
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="px-8 py-3.5 bg-[#E63946] text-white rounded-full font-medium text-lg hover:bg-red-700 hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_4px_20px_rgba(230,57,70,0.3)]">
             Shop Now
           </button>
 
-          <button className="px-8 py-3.5 border border-gray-300 text-black rounded-full font-medium text-lg hover:bg-black hover:text-white hover:scale-105 active:scale-95 transition-all duration-300">
+          <button
+            onClick={() => {
+              const categoriesSection = document.getElementById("categories");
+              if (categoriesSection) {
+                categoriesSection.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+            className="px-8 py-3.5 border border-gray-300 text-black rounded-full font-medium text-lg hover:bg-black hover:text-white hover:scale-105 active:scale-95 transition-all duration-300">
             Explore
           </button>
         </div>
